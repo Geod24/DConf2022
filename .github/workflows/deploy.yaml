@@ -1,0 +1,51 @@
+name: Deploy
+on: [ push ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Marp Build (HTML)
+        uses: docker://marpteam/marp-cli:v2.0.4
+        with:
+          args: Talk.md -o docs/index.html
+        env:
+          MARP_USER: root:root
+
+      - name: Marp Build (PDF)
+        uses: docker://marpteam/marp-cli:v2.0.4
+        with:
+          args: Talk.md -o docs/Talk.pdf
+        env:
+          MARP_USER: root:root
+
+      - name: Upload documentation artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: documentation
+          path: docs/
+
+      - name: Deploy documentation
+        run: |
+          # Remove gh-branch if it already exists, check it out
+          git branch -D gh-pages || true
+          git checkout --orphan gh-pages
+          # Remove all staged files - We only need the docs
+          git rm -rf $(git ls-files)
+          # We can have some leftover files (e.g. build)
+          # So add docs (which is only what we need), then `git mv` it.
+          git add docs/
+          git mv -k docs/* ./
+          # Configure user (because persist-credentials does not persist everything...)
+          git config --global user.name  "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          # We're done
+          git commit -m "Documentation for commit ${{ github.sha }}"
+          git push -f ${{ github.event.repository.clone_url }} gh-pages:gh-pages

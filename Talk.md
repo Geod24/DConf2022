@@ -11,14 +11,13 @@ class:
 # Foreign Relations
 ### The State of C++ Interop in D
 ###### Monday 2022-08-01 - London - Mathias 'Geod24' LANG
-######
+###### https://geod24.github.io/DConf2022/
+
 ---
 
-### Speaker intro
+### 안녕하세요
 
-- User since late 2012
-- Vibe.d, dub, DMD (frontend)
-- Sociomantic (:de:) -> **BPFK** (:kr:) -> Symmetry (:uk:)
+- Examples from **BPFK** (:kr:)
 - Views are my own, not my employer, present or past
 
 ---
@@ -96,15 +95,19 @@ class:
 ```D
 extern(C++) struct Foo { int a; }
 extern(C++) void func1 (ref const(Foo) f);
+
 extern(C++) void func2 (const(Foo*) f);
+
 extern(C++) void func3 (const(Foo**) f);
 ```
 
 ```C++
 struct Foo { int a; };
 void func1 (Foo const& f);
+
 void func2 (Foo const* f);
 // void func2 (Foo const* const f);
+
 void func3 (Foo const* const* f);
 ```
 ---
@@ -287,6 +290,8 @@ alias MyMap = map!(const(char)*, int);
 - Will be moved to another library
 - `allocator`, `array`, `vector`, `string`, `exception`, `memory`, `string_view`, etc...
 - But not `map`
+
+---
 
 ### C++ wrapper code
 
